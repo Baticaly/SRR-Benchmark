@@ -226,61 +226,46 @@ int main( int argc, char** argv )
 
     cv::Mat final;
     warpPerspective(query,final,H,Size(query.cols+train.cols,query.rows));
-    cv::Mat half(final,cv::Rect(0,0,train.cols,train.rows));
-    train.copyTo(half);
-    
-    /*
-    for(int i=0; i<result.rows; i++){
-        for(int j=0; j<result.cols; j++){
+    cv::Mat product(final,cv::Rect(0,0,final.cols,final.rows));
 
-            int qR, qG, qB, hR, hG, hB, halfValue, queryValue;
-            hR = half.data[half.channels()*(half.cols*i + j) + 2];
-            hG = half.data[half.channels()*(half.cols*i + j) + 1];
-            hB = half.data[half.channels()*(half.cols*i + j) + 0];
-
-            qR = query.data[train.channels()*(train.cols*i + j) + 2];
-            qG = query.data[train.channels()*(train.cols*i + j) + 1];
-            qB = query.data[train.channels()*(train.cols*i + j) + 0];
-
-            halfValue = hR + hG + hB;
-            queryValue = qR + qG + qB;
-
-            if(halfValue != 0){
-                hR /= 2; hG /= 2; hB /= 2;
-                qR /= 2; qG /= 2; qB /= 2;
+    // Interpolation
+    int fR, fG, fB, tR, tG, tB;
+    for(int y=0;y<train.rows;y++)
+    {
+        for(int x=0;x<train.cols;x++)
+        {
+            Vec3b & finalValue = final.at<Vec3b>(y,x);
+            Vec3b & trainValue = train.at<Vec3b>(y,x);
+            Vec3b & productValue = product.at<Vec3b>(y,x);
+            
+            fR = finalValue[0]; fG = finalValue[1]; fB = finalValue[2]; 
+            tR = trainValue[0]; tG = trainValue[1]; tB = trainValue[2]; 
+            
+            int finalSum = fR + fG + fB;
+            int trainSum = tR + tG + tB;
+            
+            if( finalSum != 0 && trainSum != 0 ){
+                productValue[0] = (fR + tR) / 2;
+                productValue[1] = (fG + tG) / 2;
+                productValue[2] = (fB + tB) / 2;
+            }
+            
+            else{
+                productValue[0] = (fR + tR);
+                productValue[1] = (fG + tG);
+                productValue[2] = (fB + tB);
             }
 
-            half.data[half.channels()*(half.cols*i + j) + 2] = 100;
-            half.data[half.channels()*(half.cols*i + j) + 1] = 100;
-            half.data[half.channels()*(half.cols*i + j) + 0] = 100;
-
-            //train.data[train.channels()*(train.cols*i + j) + 2] = 100;
-            //train.data[train.channels()*(train.cols*i + j) + 1] = 100;
-            //train.data[train.channels()*(train.cols*i + j) + 0] = 100;
+            //final.at<Vec3b>(Point(x,y)) = finalValue;
+            //train.at<Vec3b>(Point(x,y)) = trainValue;
+            product.at<Vec3b>(Point(x,y)) = productValue;
         }
     }
-    */
-   
 
-    imshow( "query", query);
-    imshow( "train", train);
-    imshow( "final", final );
+    //train.copyTo(product);   # No interpolation, simple stacking
 
-    /*
-    width, height, _ = query.shape
-        for h in range(0, height):
-            for w in range(0, width):
-                resultValue = result[h][w][0] + result[h][w][1] + result[h][w][2]
-                queryValue = query_float[h][w][0] + query_float[h][w][1] + query_float[h][w][2]
-                if queryValue != 0 and resultValue != 0:
-                    result[h][w] = ( result[h][w] + query_float[h][w] ) / 2
-                else:
-                    result[h][w] = result[h][w] + query_float[h][w]
-
-        result = result.astype(np.uint8)
-    */
-
-    //imshow("Good Matches & Object detection", img_goodmatch );
+    imshow("Good Matches & Object detection", img_goodmatch );
+    imshow( "Product", product);
 
     int matchSize;
     matchSize = sizeof(img_match);
