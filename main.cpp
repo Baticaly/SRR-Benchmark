@@ -21,7 +21,7 @@ int keypointDetector () {
     string image1_path = samples::findFile("set3overlap/1.png");
     string image2_path = samples::findFile("set3overlap/2.png");
 
-    Mat query = imread( image1_path, IMREAD_COLOR );
+    Mat query= imread( image1_path, IMREAD_COLOR );
     Mat train = imread( image2_path, IMREAD_COLOR );
 
     std::vector<KeyPoint> kpsA, kpsB;
@@ -150,11 +150,11 @@ int main( int argc, char** argv )
 
     //int matchSize, goodMatchSize = keypointDetector();
 
-    string image1_path = samples::findFile("set3overlap/2.png");
-    string image2_path = samples::findFile("set3overlap/1.png");
+    string image1_path = samples::findFile("set3overlap/1.png");
+    string image2_path = samples::findFile("set3overlap/2.png");
 
-    Mat query = imread( image1_path, IMREAD_COLOR );
-    Mat train = imread( image2_path, IMREAD_COLOR );
+    Mat query= imread( image2_path, IMREAD_COLOR );
+    Mat train = imread( image1_path, IMREAD_COLOR );
 
     std::vector<KeyPoint> kpsA, kpsB;
     Mat descriptorsA, descriptorsB;
@@ -228,7 +228,43 @@ int main( int argc, char** argv )
     warpPerspective(query,final,H,Size(query.cols+train.cols,query.rows));
     cv::Mat half(final,cv::Rect(0,0,train.cols,train.rows));
     train.copyTo(half);
-    imshow( "Resultemp", final );
+    
+    /*
+    for(int i=0; i<result.rows; i++){
+        for(int j=0; j<result.cols; j++){
+
+            int qR, qG, qB, hR, hG, hB, halfValue, queryValue;
+            hR = half.data[half.channels()*(half.cols*i + j) + 2];
+            hG = half.data[half.channels()*(half.cols*i + j) + 1];
+            hB = half.data[half.channels()*(half.cols*i + j) + 0];
+
+            qR = query.data[train.channels()*(train.cols*i + j) + 2];
+            qG = query.data[train.channels()*(train.cols*i + j) + 1];
+            qB = query.data[train.channels()*(train.cols*i + j) + 0];
+
+            halfValue = hR + hG + hB;
+            queryValue = qR + qG + qB;
+
+            if(halfValue != 0){
+                hR /= 2; hG /= 2; hB /= 2;
+                qR /= 2; qG /= 2; qB /= 2;
+            }
+
+            half.data[half.channels()*(half.cols*i + j) + 2] = 100;
+            half.data[half.channels()*(half.cols*i + j) + 1] = 100;
+            half.data[half.channels()*(half.cols*i + j) + 0] = 100;
+
+            //train.data[train.channels()*(train.cols*i + j) + 2] = 100;
+            //train.data[train.channels()*(train.cols*i + j) + 1] = 100;
+            //train.data[train.channels()*(train.cols*i + j) + 0] = 100;
+        }
+    }
+    */
+   
+
+    imshow( "query", query);
+    imshow( "train", train);
+    imshow( "final", final );
 
     /*
     width, height, _ = query.shape
@@ -245,7 +281,6 @@ int main( int argc, char** argv )
     */
 
     //imshow("Good Matches & Object detection", img_goodmatch );
-    imshow("train", train );
 
     int matchSize;
     matchSize = sizeof(img_match);
