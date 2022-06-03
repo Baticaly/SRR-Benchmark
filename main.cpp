@@ -20,8 +20,8 @@ int main( int argc, char** argv )
 {   
     chrono::steady_clock::time_point begin = chrono::steady_clock::now();
 
-    string image1_path = samples::findFile("set3overlap/1.png");
-    string image2_path = samples::findFile("set3overlap/2.png");
+    string image1_path = samples::findFile("set3overlap/2.png");
+    string image2_path = samples::findFile("set3overlap/1.png");
 
     Mat query = imread(image2_path, IMREAD_COLOR);
     Mat train = imread(image1_path, IMREAD_COLOR);
@@ -43,10 +43,12 @@ int main( int argc, char** argv )
     std::vector<KeyPoint> kpsA, kpsB;
     Mat descriptorsA, descriptorsB;
 
-    const int nfeatures = 500000;
-    const int edgeThreshold = 10;
+    int nfeatures = 500000;
+    float scaleFactor = 1.2f;
+    int nlevels = 8;
+    int edgeThreshold = 30;
 
-    Ptr<FeatureDetector> detector = ORB::create(nfeatures);
+    Ptr<FeatureDetector> detector = ORB::create(nfeatures, scaleFactor, nlevels, edgeThreshold);
     Ptr<DescriptorExtractor> descriptor = ORB::create();
 
     Ptr<DescriptorMatcher> BFmatcher = DescriptorMatcher::create("BruteForce-Hamming");
