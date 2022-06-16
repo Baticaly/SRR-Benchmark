@@ -20,8 +20,8 @@ int main( int argc, char** argv )
 {   
     chrono::steady_clock::time_point begin = chrono::steady_clock::now();
 
-    string image1_path = samples::findFile("set3overlap/2.png");
-    string image2_path = samples::findFile("set3overlap/1.png");
+    string image1_path = samples::findFile("benchmarkSources/2/20220103_145610.png");
+    string image2_path = samples::findFile("benchmarkSources/2/20220103_145640.png");
 
     Mat query = imread(image2_path, IMREAD_COLOR);
     Mat train = imread(image1_path, IMREAD_COLOR);
@@ -162,24 +162,26 @@ int main( int argc, char** argv )
 
     //train.copyTo(final);   # No interpolation, simple stacking
 
-    //imshow("Good Matches & Object detection", img_goodmatch);
-    imshow("Final", final);
+    imwrite("Good Matches & Object detection.png", img_goodmatch);
+    imwrite("Final.png", final);
 
     int matchSize;
-    matchSize = sizeof(img_match);
+    cout << matches.size() << " ";
+    matchSize = matches.size();
 
     int goodMatchSize;
-    goodMatchSize = sizeof(img_goodmatch);
+    cout << good_matches.size();
+    goodMatchSize = good_matches.size();
 
     chrono::steady_clock::time_point end = chrono::steady_clock::now();
 
     ofstream logfile;
     logfile.open("results.csv");
-    logfile << "Test Index,Keypoint Match Count,Good Match Count,Result(second)\n";
+    logfile << "Test Index,Keypoint Match Count,Good Match Count,Result\n";
     logfile << "0," << matchSize << "," << goodMatchSize << "," << chrono::duration_cast<chrono::microseconds>(end - begin).count() << endl;
     logfile.close();
 
-    waitKey(0);
+    //waitKey(0);
     return 0;
 }
 
